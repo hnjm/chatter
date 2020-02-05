@@ -3,12 +3,14 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace Server
 {
     class Server
     {
         TcpListener server = null;
+        List<TcpClient> clients = new List<TcpClient>();
 
         public Server(string ip, int port)
         {
@@ -22,14 +24,16 @@ namespace Server
         {
             try
             {
-                while (true)
+                while (clients.Count < 5)
                 {
                     Console.WriteLine("Waiting for a connection...");
                     TcpClient client = server.AcceptTcpClient();
                     Console.WriteLine("Connected!");
                     Thread t = new Thread(new ParameterizedThreadStart(HandleDevice));
                     t.Start(client);
+                    clients.Add(client);
                 }
+                Console.WriteLine("Mamy 5 graczy");
             }
             catch (SocketException e)
             {
