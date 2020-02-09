@@ -10,12 +10,7 @@ namespace Server
 
         static void Main(string[] args)
         {
-            Thread t = new Thread(delegate ()
-            {
-                Server server = new Server(ip, port);
-            });
-
-            t.Start();
+            Server server = new Server(ip, port);
         }
     }
 }
