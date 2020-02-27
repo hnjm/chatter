@@ -1,16 +1,18 @@
-﻿using System;
-using System.Threading;
+﻿using Serilog;
+using System;
 
 namespace Server
 {
     class Program
     {
-        private const string ip = "192.168.1.67";
-        private const Int32 port = 13000;
-
         static void Main(string[] args)
         {
-            Server server = new Server(ip, port);
+            Log.Logger = new LoggerConfiguration()
+                .WriteTo.Console()
+                .WriteTo.File("log-.txt", outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
+                .CreateLogger();
+
+            Server server = new Server();        
         }
     }
 }

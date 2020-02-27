@@ -4,7 +4,8 @@ using System.Text;
 
 namespace Server
 {
-    class Client
+    public class ChatRoom
     {
+
     }
 }
