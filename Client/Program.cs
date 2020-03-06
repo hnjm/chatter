@@ -10,7 +10,7 @@ namespace Client
         private const string serverIp = "192.168.1.67";
         private const Int32 serverPort = 13000;
 
-        static void Main(string[] args)
+        static void Main()
         {
             new Thread(() =>
             {

@@ -2,19 +2,27 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 
 namespace Server
 {
-    internal class Server
+    internal class ServerListener
     {
-        private const string serverIp = "192.168.1.67";
-        private const Int32 serverPort = 13000;
+        private string serverIp;
+        private Int32 serverPort;
 
         private TcpListener tcpListener = null;
-        private Chat chat = null;
 
-        public Server()
+        public ServerListener()
+        {
+            serverIp = GetLocalIPAddress();
+            serverPort = 13000;
+        }
+        public ServerListener(string ip, Int32 port)
+        {
+            serverIp = ip;
+            serverPort = port;
+        }
+        public void Run()
         {
             Log.Information("Starting server...");
             ConfigureListener();
@@ -26,18 +34,12 @@ namespace Server
             IPAddress localAddr = IPAddress.Parse(serverIp);
             tcpListener = new TcpListener(localAddr, serverPort);
         }
-
         private void Listen()
         {
             tcpListener.Start();
-
-            Log.Information($"Loading chat...");
-            chat = Chat.Instance;
-
             Log.Information($"Listening on {serverIp}:{serverPort}");
             AcceptClients();
         }
-
         private void AcceptClients()
         {
             try
@@ -45,21 +47,26 @@ namespace Server
                 while (true)
                 {
                     TcpClient client = tcpListener.AcceptTcpClient();
-                    Thread t = new Thread(new ParameterizedThreadStart(HandleClient));
-                    t.Start(client);
+                    ClientHandler.Add(client);
                 }
             }
             catch (SocketException e)
             {
                 Log.Error("SocketException: {0}", e);
                 tcpListener.Stop();
-            }
+            }  
         }
-
-        private void HandleClient(Object obj)
+        private string GetLocalIPAddress()
         {
-            TcpClient client = (TcpClient)obj;
-            chat.AddClientToRoom(client);
+            var host = Dns.GetHostEntry(Dns.GetHostName());
+            foreach (var ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return ip.ToString();
+                }
+            }
+            throw new Exception("No network adapters with an IPv4 address in the system!");
         }
     }
 }

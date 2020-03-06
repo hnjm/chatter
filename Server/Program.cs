@@ -12,7 +12,10 @@ namespace Server
                 .WriteTo.File("log-.txt", outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}")
                 .CreateLogger();
 
-            Server server = new Server();        
+            ServerListener server = new ServerListener();
+            server.Run();
+
+            Console.ReadLine();
         }
     }
 }

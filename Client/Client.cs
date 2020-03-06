@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace Client
 {
@@ -12,17 +13,22 @@ namespace Client
         {
             client = new TcpClient(serverIp, serverPort);
             stream = client.GetStream();
-            sendMessage("Hello!");
-            receiveMessage();
-            client.Close();
+            string message;
+            Thread t = new Thread(HandleClient);
+            t.Start();
+            while (true)
+            {
+                message = Console.ReadLine();
+                SendMessage(message);
+            }
         }
-        private static void sendMessage(String message)
+        private static void SendMessage(String message)
         {
             try
             {
                 Byte[] data = System.Text.Encoding.ASCII.GetBytes(message);
                 stream.Write(data, 0, data.Length);
-                Console.WriteLine($"Sent: {message}");
+                stream.Flush();
             }
             catch (Exception e)
             {
@@ -30,12 +36,19 @@ namespace Client
             }
         }
 
-        private static string receiveMessage() {
+        private void HandleClient()
+        {
+            while(true)
+            {
+                ReceiveMessage();
+            }
+        }
+
+        private static string ReceiveMessage() {
             Byte[] data = new Byte[256];
-            String response = String.Empty;
             Int32 bytes = stream.Read(data, 0, data.Length);
-            response = System.Text.Encoding.ASCII.GetString(data, 0, bytes);
-            Console.WriteLine("Received: {0}", response);
+            string response = System.Text.Encoding.ASCII.GetString(data, 0, bytes);
+            Console.WriteLine(response);
             return response;
         }
     }
